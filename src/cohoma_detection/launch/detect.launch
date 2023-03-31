@@ -1,0 +1,68 @@
+<launch>
+     <group ns="/">
+        <arg name="img_topic" default="image"/>
+        <arg name="gps_topic" default="gps"/>
+        <arg name="sat_topic" default="sat"/>
+        <arg name="zoom_topic" default="control/cmd_zoom"/>
+        <arg name="gimbal_topic" default="control/cmd_cam"/>
+        <arg name="qrc_dim" default="28.9"/>
+
+
+        <arg name="low_H_value" default="10"/>
+        <arg name="high_H_value" default="170"/>
+
+        <arg name="low_S_value" default="170"/>
+        <arg name="high_S_value" default="255"/>
+
+        <arg name="low_V_value" default="140"/>
+        <arg name="high_V_value" default="255"/>
+
+        <arg name="canny_thresh_value" default="100"/>
+
+        <arg name="min_dist_value" default="5e-9"/>
+
+
+
+        <!--Point if Interrest topic-->
+        <arg name="poi_topic" default="mission/poi_data"/>
+        <!--QR code topic-->
+        <arg name="qrc_topic" default="mission/qrc_data"/>
+
+        <node name="img_pub" pkg="cohoma_detection" type="img_pub" output="screen"/>
+
+        <node pkg="tf" type="static_transform_publisher" name="world_broadcaster" args="0 0 0 0.707 0 0 0.707 world base 10" />
+        
+        <node name="qrc_detect" pkg="cohoma_detection" type="qrc_detect" output="screen" respawn="true">
+            <param name="qrc_dim" value="$( arg qrc_dim )"/>
+            <param name="img_topic" value="$( arg img_topic )"/>
+            <param name="gps_topic" value="$( arg gps_topic )"/>
+            <param name="sat_topic" value="$( arg sat_topic )"/>
+            <param name="zoom_topic" value="$( arg zoom_topic )"/>
+            <param name="gimbal_topic" value="$( arg gimbal_topic )"/>
+            <param name="qrc_topic" value="$( arg qrc_topic )"/>
+        </node>
+        
+        <node name="qrc_manager" pkg="cohoma_detection" type="qrc_manager" output="screen" respawn="true">
+            <param name="qrc_topic" value="$( arg qrc_topic )"/>
+            <param name="poi_topic" value="$( arg poi_topic )"/>
+        </node>
+        
+        
+        <node name="trap_detector" pkg="cohoma_detection" type="trap_detector" output="screen" respawn="true">
+            <param name="img_topic" value="$( arg img_topic )"/>
+            <param name="gps_topic" value="$( arg gps_topic )"/>
+            <param name="poi_topic" value="$( arg poi_topic )"/>
+
+            <param name="low_H_value" value="$( arg low_H_value )"/>
+            <param name="low_S_value" value="$( arg low_S_value )"/>
+            <param name="low_V_value" value="$( arg low_V_value )"/>
+            <param name="high_H_value" value="$( arg high_H_value )"/>
+            <param name="high_S_value" value="$( arg high_S_value )"/>
+            <param name="high_V_value" value="$( arg high_V_value )"/>
+            <param name="canny_thresh_value" value="$( arg canny_thresh_value )"/>
+
+            <param name="min_dist_value" value="$( arg min_dist_value )"/>
+        </node> 
+        
+     </group>
+</launch>
