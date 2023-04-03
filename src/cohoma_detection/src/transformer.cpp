@@ -106,37 +106,42 @@ Mat eulerAnglesToRotationMatrix(Vec3f &theta)
     return R;
 }
 
-void Callback(const cohoma_detection::CoordinateTransformation msg){
+void callback(const cohoma_detection::CoordinateTransformation srv){
     // Rotation R
     Vec3f eulerAngles;
-    eulerAngles[0]= msg.rotation.x;
-    eulerAngles[1]= msg.rotation.y;
-    eulerAngles[2]= msg.rotation.z;
+    eulerAngles[0]= srv.request.rotation.x;
+    eulerAngles[1]= srv.request.rotation.y;
+    eulerAngles[2]= srv.request.rotation.z;
     Mat rotationMatrix = eulerAnglesToRotationMatrix(eulerAngles);
     // Translation 
     Vec3f translation_vectors;
-    translation_vectors[0] = msg.translation.x;
-    translation_vectors[1] = msg.translation.y;
-    translation_vectors[2] = msg.translation.z;
+    translation_vectors[0] = srv.request.translation.x;
+    translation_vectors[1] = srv.request.translation.y;
+    translation_vectors[2] = srv.request.translation.z;
     // Coordonées pixel
     Vec3f imgPoint;
-    imgPoint[0] = msg.coor_pixel.x;
-    imgPoint[1] = msg.coor_pixel.y;
-    imgPoint[2] = msg.coor_pixel.z;
+    imgPoint[0] = srv.request.coor_pixel.x;
+    imgPoint[1] = srv.request.coor_pixel.y;
+    imgPoint[2] = srv.request.coor_pixel.z;
     // Intrinsic Matrix
     Mat intrinsic_matrix = Mat::eye(3,3,CV_32FC1);  //unité um
     intrinsic_matrix.at<float>(0,2) = 1024;
     intrinsic_matrix.at<float>(1,2) = 512;
 
+    // calculate the real coordinates. We temporarely set long lat to be de distances.
     Vec3f worldPoint = cameraToWorld(intrinsic_matrix, rotationMatrix, translation_vectors, imgPoint); 
-    cout << "TROUVER coordonnées spacial:\n" << worldPoint << endl;
+    ROS_INFO_STREAM("TROUVE coordonnées dans le monde réel : " << worldPoint);
+    srv.response.gps_qrcode.latitude = worldPoint[0];
+    srv.response.gps_qrcode.longitude = worldPoint[1];
+    srv.response.gps_qrcode.altitude = worldPoint[2];
 }
 
 
 int main(int argc, char **argv){
     ros::init(argc,argv,"transformer");
     ros::NodeHandle nh;
-    ros::Subscriber sub=nh.subscribe("qrc_coor_transfo_topic",1,Callback); 
-    ros::spin();// activate callback func. If only use once ros：：spinOnce
+    ros::ServiceServer service = nh.advertiseService("qrc_coor_transfo_service", callback);
+    ROS_INFO("Ready to transform coordinates.");
+    ros::spin();//If only use once ros：：spinOnce
     return 0;
 }

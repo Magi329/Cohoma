@@ -171,4 +171,16 @@ rospy.loginfo(vector_translation)
             error : orientation not exists
 */
 
+/*
+            cout << "points_2D: " << endl;
+            for (const auto& p : points_2D) {
+                cout << p << endl;
+            }
+
+            cout << "points_3D: " << endl;
+            for (const auto& p : points_3D) {
+                cout << p << endl;
+            }
+*/
+
 """

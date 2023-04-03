@@ -6,6 +6,7 @@
         <arg name="zoom_topic" default="control/cmd_zoom"/>
         <arg name="gimbal_topic" default="control/cmd_cam"/>
         <arg name="qrc_dim" default="28.9"/>
+        <arg name="qrc_coor_transfo_service" default="transformation/qrc_coor"/>
 
 
         <arg name="low_H_value" default="10"/>

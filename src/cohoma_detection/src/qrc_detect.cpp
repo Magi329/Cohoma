@@ -30,6 +30,7 @@
 #include "cohoma_detection/PushSP.h"
 #include "cohoma_detection/TrapDelete.h"
 #include "cohoma_detection/TrapDisable.h"
+#include "cohoma_detection/CoordinateTransformation.h"
 #include <bits/stdc++.h>
 #include <boost/lexical_cast.hpp>
 #include <ros/console.h>
@@ -74,6 +75,7 @@ class QRCDetect
         nh.param<std::string>("zoom_topic",zoom_sub_topic,"control/cmd_zoom");
         nh.param<std::string>("gimbal_topic",gimbal_sub_topic,"control/cmd_cam");
         nh.param<std::string>("qrc_topic",qrc_data_pub_topic,"mission/qrc_data");
+        nh.param<std::string>("qrc_coor_transfo_service",coor_transfo_service,"transformation/qrc_coor");
 
         //Subscribers
         img_sub = nh.subscribe(img_sub_topic, 1000, &QRCDetect::img_cb,this);
@@ -86,7 +88,8 @@ class QRCDetect
         //SP and QRC are quite the same, SP is HMI oriented whereas QRC are the raw data
         //on publie SP sur topic mission/qrc_data
         qrc_data_pub=nh.advertise<cohoma_detection::StrategicPoint>(qrc_data_pub_topic,1);
-
+        // on demande des coordonnées du qrcode sur service transformation/qrc_coor
+        ros::ServiceClient client = nh.serviceClient<cohoma_detection::CoordinateTransformation>(coor_transfo_service);
         //CV Bridge Initi
         cv_image=NULL;
 
@@ -150,13 +153,7 @@ class QRCDetect
         int n = scanner.scan(image);
         //ROS_INFO("Scan done");
         // add code bar to the vector decodedObjects
-/*
-        // convert type to cout end
-        std::ostringstream ss;
-        ss << *image.symbol_end();
-        std::string result = ss.str();     // problem detected : cannot detect qr code. It's also nessesary to build an interface like in qrc_detect.py
-        cout << "result of symbol_end " << result << endl;
-*/
+
         for(zbar::Image::SymbolIterator symbol = image.symbol_begin(); symbol != image.symbol_end(); ++symbol)
         {
             decodedObject obj;
@@ -182,19 +179,28 @@ class QRCDetect
             //we save the code bar just in case
             decodedObjects.push_back(obj);
 
+            // Uses PnP (Perspective-n-Point) from Open CV to compute distance between the camera and the QR Code
+
+            // Define the 2D and 3D points
+            vector<Point2f> points_2D {
+                points_camera[0],  // Top left corner
+                points_camera[1],  // Bot left corner 
+                points_camera[2],  // Bot right corner
+                points_camera[3]   // Top right corner
+            };
+            float dim_f = stof(dim);
+            vector<Point3f> points_3D {
+                Point3f(0.0,    dim_f,  0.0),  // Top left corner
+                Point3f(0.0,       0.0,     0.0),  // Bot left corner 
+                Point3f(dim_f, 0.0,     0.0),  // Bot right corner
+                Point3f(dim_f, dim_f, 0.0)   // Top right corner
+            };
+            // Coordinates in the real world. Origin is at "bot left corner (in front?)"
 
             points_2D.insert(points_2D.begin(), Point2f(xb, yb));
             points_3D.insert(points_3D.begin(), Point3f(dim_f/2, dim_f/2, 0.0));
 
-            cout << "points_2D: " << endl;
-            for (const auto& p : points_2D) {
-                cout << p << endl;
-            }
-
-            cout << "points_3D: " << endl;
-            for (const auto& p : points_3D) {
-                cout << p << endl;
-            }
+            // définir la matrice de la caméra
             double fx, fy, cx, cy;
             if (drone) {
                 fx = 969.534432;
@@ -215,11 +221,42 @@ class QRCDetect
             Mat dist_coeffs = Mat::zeros(4, 1, DataType<double>::type);   // chatgpt : Mat distortion_coeffs = (Mat_<double>(1, 5) << k1, k2, p1, p2, k3);
 
             // Use Perspective n Points from OpenCV to convert 2D point on the camera to 3D point in the real world
-            Mat vector_rotation, vector_translation;
-            bool success = solvePnP(points_3D, points_2D, matrix_camera, dist_coeffs, vector_rotation, vector_translation, false);
+            Mat rotation, translation;
+            bool success = solvePnP(points_3D, points_2D, matrix_camera, dist_coeffs, rotation, translation, false);
 
-            ROS_INFO_STREAM("Rotation: " << vector_rotation);
-            ROS_INFO_STREAM("Translation: " << vector_translation);
+            ROS_INFO_STREAM("Rotation: " << rotation);
+            ROS_INFO_STREAM("Translation: " << translation);
+
+            //envoyer un request
+            cohoma_detection::CoordinateTransformation srv;
+            geometry_msgs::Vector3 vector_rotation;
+            vector_rotation.x = rotation.at<float>(0,0);
+            vector_rotation.y = rotation.at<float>(1,0);
+            vector_rotation.z = rotation.at<float>(2,0);
+            geometry_msgs::Vector3 vector_translation;
+            vector_translation.x = translation.at<float>(0,0);
+            vector_translation.y = translation.at<float>(1,0);
+            vector_translation.z = translation.at<float>(2,0);
+            geometry_msgs::Point coor_px;                   
+            coor_px.x = xb;
+            coor_px.y = yb;
+            coor_px.z = 0;
+            srv.request.rotation = vector_rotation;           // rotation
+            srv.request.translation = vector_translation;     // translation
+            srv.request.coor_pixel = coor_px;                 // coor_pixel
+            srv.request.gps_drone = gps;                      // gps_drone
+            if (client.call(srv))
+            {
+                //la position GPS du QRCode 
+                geographic_msgs::GeoPoint qrc_position = srv.response.gps_qrcode;    // puis l'ajouter dans StrategiePoint
+                ROS_INFO_STREAM("Coordinates of the QRcode: " << qrc_position);
+            }
+            else
+            {
+                ROS_ERROR("Failed to call service qrc_coor_transfo_service");
+  
+            }
+
 
 
             //make an action for the code bar  
@@ -234,24 +271,15 @@ class QRCDetect
                 qrcode_parse[2]="0";
             }
             
-            //coordonnées GPS du drone
-            // sensor_msgs::NavSatFix gps;
-            
             //construction message contenant la position
             //pour avoir la position du QRCode il faut la position GPS du drone, ok
             // l orientation de la caméra,
             //les coordonnées du point dans la caméra. ok
-            
-            //on peut faire un autre noeud qui va calculer la position GPS du QRCode (même noeud pour les ubes rouges)
-            geographic_msgs::GeoPoint position;    // pour pouvoir l'ajouter dans StrategiePoint
-            position.latitude = 0;
-            position.longitude = 0;
-            position.altitude = 0.0;
 
             //construction du message QRCode
             cohoma_detection::QRCode qrc_tab_msg;
             qrc_tab_msg.raw_value =obj.data;
-            qrc_tab_msg.position=position;
+            qrc_tab_msg.position=qrc_position;
             qrc_tab_msg.nature = qrcode_parse[0];
             qrc_tab_msg.id=stoui(qrcode_parse[1]);
             qrc_tab_msg.ngz_radius = stoui(qrcode_parse[2]);
@@ -287,7 +315,7 @@ class QRCDetect
             //construction message SP avec les informations du QRCode
             cohoma_detection::StrategicPoint qrc_SP;
             qrc_SP.id = qrcode_parse[1];
-            qrc_SP.position=position;
+            qrc_SP.position=qrc_position;
             qrc_SP.type = type;
             qrc_SP.status = status;
             qrc_SP.radius = stof(qrcode_parse[2]);

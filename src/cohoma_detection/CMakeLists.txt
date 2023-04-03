@@ -62,7 +62,6 @@ add_message_files(
   QRCodeList.msg
   StrategicPoint.msg
   MissionContext.msg
-  CoordinateTransformation.msg
 )
 
 
@@ -72,6 +71,7 @@ add_service_files(
   TrapDelete.srv
   TrapDisable.srv
   PushSP.srv
+  CoordinateTransformation.srv
 )
 
 ## Generate actions in the 'action' folder
@@ -153,7 +153,7 @@ include_directories("/usr/local/include/opencv4/")
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/simple_node.cpp)
-add_executable(talker src/talker.cpp) # nom de l'executable, normallement nom du node, indiquant le fichier source du node
+  # nom de l'executable, normallement nom du node, indiquant le fichier source du node
 add_executable(transformer src/transformer.cpp)
 add_executable(trap_detector src/trap_detector.cpp)
 add_executable(img_pub src/img_pub.cpp)
@@ -179,12 +179,6 @@ add_dependencies(transformer ${cohoma_detection_EXPORTED_TARGETS} ${catkin_EXPOR
 
 ## Specify libraries to link a library or executable target against
 # target_link_libraries(${PROJECT_NAME}_node
-target_link_libraries(talker ${catkin_LIBRARIES})
-target_link_libraries(transformer 
-   ${catkin_LIBRARIES}
-   ${OpenCV_LIBRARIES}
- )
-
 
 target_link_libraries(trap_detector
    ${catkin_LIBRARIES}

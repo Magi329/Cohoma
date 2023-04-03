@@ -1,0 +1,6 @@
+geometry_msgs/Vector3 translation             # entre le repère de la caméra et le repère du monde réel
+geometry_msgs/Vector3 rotation
+geometry_msgs/Point   coor_pixel             # x et y coordonnées en pixel, on n'utilise pas z
+sensor_msgs/NavSatFix gps_drone              # latitude longitude altitude ainsi que status header position_covariance du drone
+---
+geographic_msgs/GeoPoint gps_qrcode          # latitude longitude altitude
