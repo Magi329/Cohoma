@@ -11,7 +11,7 @@ from cv_bridge import CvBridge
 import random
 
 # define a video capture object
-vid = cv.VideoCapture(0)
+### vid = cv.VideoCapture(0)
     
 def imagePub():
     rospy.init_node('image_pub', anonymous=True)
@@ -28,25 +28,24 @@ def imagePub():
     longitude = 2.217728
 
     while not rospy.is_shutdown():
-        """
+        
         rand = random.randint(1, 2)
         if rand == 1:
-            path_qr =    '/home/cyver/catkin_ws/src/cohoma_detection/script/media/1.jpg'
+            path_qr =    '/home/chen/cohoma_ws/src/cohoma_detection/script/media/1.jpg'
             lat = 48.715
             long = 2.211
         elif rand == 2:
-            path_qr =    '/home/cyver/catkin_ws/src/cohoma_detection/script/media/2.jpg'
+            path_qr =    '/home/chen/cohoma_ws/src/cohoma_detection/script/media/2.jpg'
             lat = 48.711
             long = 2.215
         else :
-            path_qr =    '/home/cyver/catkin_ws/src/cohoma_detection/script/media/none.jpg'
+            path_qr =    '/home/chen/cohoma_ws/src/cohoma_detection/script/media/none.jpg'
         
-        img_color = cv2.imread(path_qr,cv2.IMREAD_COLOR)
-        """
+        img_color = cv.imread(path_qr,cv.IMREAD_COLOR)
         
         
 
-        ret, img_color = vid.read()
+        ###ret, img_color = vid.read()
 
         #img_color = cv.flip(img_color, 1)
 
@@ -61,7 +60,7 @@ def imagePub():
         rate.sleep()
 
     # After the loop release the cap object
-    vid.release()
+    ### vid.release()
 
 if __name__ == '__main__':
     try:

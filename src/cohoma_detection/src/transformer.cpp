@@ -39,9 +39,8 @@ Vec3f cameraToWorld(InputArray cameraMatrix, InputArray rV, InputArray tV, Input
     Mat invR = r.inv();  
 
     Mat transPlaneToCam;
-    
     if(t.size() == Size(1, 3)){
-        transPlaneToCam = invR * t;//t.t();
+        transPlaneToCam = invR * t;
     }
     else if(t.size() == Size(3, 1)){
         transPlaneToCam = invR * t.t();
@@ -56,20 +55,20 @@ Vec3f cameraToWorld(InputArray cameraMatrix, InputArray rV, InputArray tV, Input
        
         //[x,y,z] = invK * [u,v,1]
         Mat worldPtCam = invK * imgPoint.getMat();
+        
         //[x,y,1] * invR
         Mat worldPtPlane = invR * worldPtCam;
 
         //zc 
         float scale = transPlaneToCam.at<float>(2) / worldPtPlane.at<float>(2);
-        //cout << "scale:" << scale << endl;
-        Mat scale_worldPtPlane(3, 1, CV_32F);
-        //scale_worldPtPlane.at<float>(0, 0) = worldPtPlane.at<float>(0, 0) * scale;
+        
         //zc * [x,y,1] * invR
+        Mat scale_worldPtPlane(3, 1, CV_32F);
         scale_worldPtPlane = scale * worldPtPlane;
-        //cout << "scale_worldPtPlane:" << scale_worldPtPlane << endl;
+        
         //[X,Y,Z]=zc*[x,y,1]*invR - invR*T
         Mat worldPtPlaneReproject = scale_worldPtPlane - transPlaneToCam;
-        //cout << "worldPtPlaneReproject:" << worldPtPlaneReproject << endl;
+        
         Vec3f worldPoint;
         worldPoint[0] = worldPtPlaneReproject.at<float>(0);
         worldPoint[1] = worldPtPlaneReproject.at<float>(1);

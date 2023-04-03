@@ -15,7 +15,7 @@ import tf
 
 from cohoma_detection.msg import *
 
-drone = False
+drone = False       # decide to use which the camera matrix
 
 class QRCDetect:
     def __init__(self):
@@ -123,7 +123,7 @@ class QRCDetect:
 
 
             #rospy.loginfo(xb)
-            #rospy.loginfo(yb)
+            #rospy.loginfo(yb)                                                              OK
             
             qrc_raw = (obj.data).decode('utf-8')
 
@@ -145,7 +145,7 @@ class QRCDetect:
             # Magenta
             cv_image = cv2.circle(cv_image, points_camera[0][2], 10, (250,0,250), -1)
             # Green
-            cv_image = cv2.circle(cv_image, points_camera[0][3], 10, (0,250,0), -1)
+            cv_image = cv2.circle(cv_image, points_camera[0][3], 10, (0,250,0), -1)                             OK
 
             # Uses PnP (Perspective-n-Point) from Open CV to compute distance between the camera and the QR Code
 
@@ -161,8 +161,8 @@ class QRCDetect:
                         (0.0     ,  0.0     , 0.0),  # Bot left corner 
                         (self.dim,  0.0     , 0.0),  # Bot right corner
                         (self.dim,  self.dim, 0.0)   # Top right corner
-                        ]
-
+                        ] # coordonnées dans le monde réel. L'origine se trouve sur "bot left corner (en face ?)". Not yet konw the orientation
+            
             # Permutte geometric positions of the 3D object depending on the rotation 
             # Pyzbar is automaticly positionning the polygon points (see comments on the points_2D array)
             # in order to match the correct point to the correct real world value it is mandatory to rearange de array with a circular permutation

@@ -47,6 +47,9 @@ typedef struct
   float location[2];//x  y
 } decodedObject;
 
+// swith between drone camera and test camera
+bool drone = false;
+
 /*
 Ce node (ici qui a pour nom qrc_detect et dans le launch qrc_detect) 
 
@@ -123,59 +126,104 @@ class QRCDetect
     //cf vidéo suivante pour plus d'explication : https://www.youtube.com/watch?v=KcHs_mj_XRc
     void img_cb(const sensor_msgs::ImageConstPtr &msg)
     {
+        ROS_INFO("Image recieved. Starting to detect QR code...");
         // https://github.com/ros-drivers/zbar_ros/blob/ros2/include/zbar_ros/barcode_reader_node.hpp
         // https://github.com/mdrwiega/qr_detector/blob/master/src/qr_detector_nodelet.cpp
 
         //on peut jouer sur le mono8 en le remplacant par du BGR2GRAY ou autre chose RGB etc
         //conversion img ROS en img OpenCV
         cv_image = cv_bridge::toCvShare(msg,"mono8");
-        
+        ROS_INFO("Conversion to OpenCVdone");
         // Create zbar scanner
     
         // Configure scanner
         scanner.set_config(zbar::ZBAR_NONE, zbar::ZBAR_CFG_ENABLE, 1);
-
+        
         // Convert image to grayscale
         // Mat imGray;
         // cvtColor(cv_image, imGray,CV_BGR2GRAY);
 
         // Wrap image data in a zbar image
         zbar::Image image(cv_image->image.cols, cv_image->image.rows, "Y800", cv_image->image.data, cv_image->image.cols * cv_image->image.rows);
-
+        //ROS_INFO("Wrap image data in a zbar image done");
         // Scan the image for barcodes and QRCodes
         int n = scanner.scan(image);
-        
+        //ROS_INFO("Scan done");
         // add code bar to the vector decodedObjects
+/*
+        // convert type to cout end
+        std::ostringstream ss;
+        ss << *image.symbol_end();
+        std::string result = ss.str();     // problem detected : cannot detect qr code. It's also nessesary to build an interface like in qrc_detect.py
+        cout << "result of symbol_end " << result << endl;
+*/
         for(zbar::Image::SymbolIterator symbol = image.symbol_begin(); symbol != image.symbol_end(); ++symbol)
         {
             decodedObject obj;
             obj.type = symbol->get_type_name();
             obj.data = symbol->get_data();
-
             // Print type and data
-            //cout << "Type : " << obj.type << endl; //contient le type de code barre : QRCode etc
-            //cout << "Data : " << obj.data << endl; //contient les infos qui sont séparés par des retours à la ligne
+            cout << "Type : " << obj.type << endl; //contient le type de code barre : QRCode etc
+            cout << "Data : " << obj.data << endl; //contient les infos qui sont séparés par des retours à la ligne
 
-            // Obtain location
-            for(int i = 0; i< symbol->get_location_size(); i++)
+            // Calculer le barycentre (en pixel) du qrcode
+            int xb=0, yb=0;
+            vector<Point2f> points_camera;   // à vérifier si il convient 0 0 ou pas
+            for(int i = 0; i< symbol->get_location_size(); i++)   // size = 4 normallement 
             {
-                //coordonnées du QRCode dans l'image en px
-                cout<<"x:"<<symbol->get_location_x(i)<<"   y:"<<symbol->get_location_y(i)<<endl;
-                obj.location[0]=symbol->get_location_x(i);
-                obj.location[1]=symbol->get_location_y(i);
+                //cout<<"x:"<<symbol->get_location_x(i)<<"   y:"<<symbol->get_location_y(i)<<endl;
+                xb += symbol->get_location_x(i);
+                yb += symbol->get_location_y(i);
+                points_camera.push_back(Point2f(symbol->get_location_x(i),symbol->get_location_y(i)));
             }
+            obj.location[0] = xb / symbol->get_location_size();
+            obj.location[1] = yb / symbol->get_location_size();
 
             //we save the code bar just in case
             decodedObjects.push_back(obj);
 
 
-////to do : add action to send the x y coordinates en pixel to coor_transfo_topic
-/// add the commented codes, transform en cpp. Then send rotation matrix and translation matrix to coor_transfo_topic
+            points_2D.insert(points_2D.begin(), Point2f(xb, yb));
+            points_3D.insert(points_3D.begin(), Point3f(dim_f/2, dim_f/2, 0.0));
+
+            cout << "points_2D: " << endl;
+            for (const auto& p : points_2D) {
+                cout << p << endl;
+            }
+
+            cout << "points_3D: " << endl;
+            for (const auto& p : points_3D) {
+                cout << p << endl;
+            }
+            double fx, fy, cx, cy;
+            if (drone) {
+                fx = 969.534432;
+                fy = 964.847390;
+                cx = 634.036198;
+                cy = 377.592061;
+            } else {
+                fx = 502.55419128;
+                fy = 502.04227557;
+                cx = 351.39874168;
+                cy = 246.11607977;
+            }
+            Mat matrix_camera = (Mat_<double>(3, 3) <<
+                         fx, 0, cx,
+                         0, fy, cy,
+                         0, 0, 1);
+
+            Mat dist_coeffs = Mat::zeros(4, 1, DataType<double>::type);   // chatgpt : Mat distortion_coeffs = (Mat_<double>(1, 5) << k1, k2, p1, p2, k3);
+
+            // Use Perspective n Points from OpenCV to convert 2D point on the camera to 3D point in the real world
+            Mat vector_rotation, vector_translation;
+            bool success = solvePnP(points_3D, points_2D, matrix_camera, dist_coeffs, vector_rotation, vector_translation, false);
+
+            ROS_INFO_STREAM("Rotation: " << vector_rotation);
+            ROS_INFO_STREAM("Translation: " << vector_translation);
 
 
-
-            //make an action for the code bar
-            tokenize(obj.data,"\r\n");
+            //make an action for the code bar  
+            tokenize(obj.data,"\r\n");  
             if(qrcode_parse[1]=="s/o")
             {
                 qrcode_parse[1]="0";
@@ -186,12 +234,16 @@ class QRCDetect
                 qrcode_parse[2]="0";
             }
             
+            //coordonnées GPS du drone
+            // sensor_msgs::NavSatFix gps;
+            
             //construction message contenant la position
-            //pour avoir la position du QRCode il faut la position GPS du drone, l orientation de la caméra
+            //pour avoir la position du QRCode il faut la position GPS du drone, ok
+            // l orientation de la caméra,
             //les coordonnées du point dans la caméra. ok
-            //init à 0 pour les coordonnées 
+            
             //on peut faire un autre noeud qui va calculer la position GPS du QRCode (même noeud pour les ubes rouges)
-            geographic_msgs::GeoPoint position;
+            geographic_msgs::GeoPoint position;    // pour pouvoir l'ajouter dans StrategiePoint
             position.latitude = 0;
             position.longitude = 0;
             position.altitude = 0.0;
@@ -305,7 +357,7 @@ class QRCDetect
     private:
     //
     bool sat;
-    //coordonnées GPS
+    //coordonnées GPS du drone
     sensor_msgs::NavSatFix gps;
     //Drones Gimbal pitch angle from 
     float gimbal = 0.0 ;
