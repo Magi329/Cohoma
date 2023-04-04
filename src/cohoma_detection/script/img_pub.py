@@ -29,7 +29,7 @@ def imagePub():
 
     while not rospy.is_shutdown():
         
-        rand = random.randint(1, 2)
+        rand = 1 #random.randint(1, 2)
         if rand == 1:
             path_qr =    '/home/chen/cohoma_ws/src/cohoma_detection/script/media/1.jpg'
             lat = 48.715

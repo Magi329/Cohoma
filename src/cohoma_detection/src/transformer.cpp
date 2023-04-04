@@ -25,6 +25,7 @@ using namespace std;
 /*
     subscriber : gps_topic, qrc_transfo_pub_topic
 */
+/*
 Vec3f cameraToWorld(InputArray cameraMatrix, InputArray rV, InputArray tV, InputArray imgPoint)
 {
     
@@ -131,17 +132,19 @@ void callback(const cohoma_detection::CoordinateTransformation srv){
     // calculate the real coordinates. We temporarely set long lat to be de distances.
     Vec3f worldPoint = cameraToWorld(intrinsic_matrix, rotationMatrix, translation_vectors, imgPoint); 
     ROS_INFO_STREAM("TROUVE coordonnées dans le monde réel : " << worldPoint);
-    srv.response.gps_qrcode.latitude = worldPoint[0];
-    srv.response.gps_qrcode.longitude = worldPoint[1];
-    srv.response.gps_qrcode.altitude = worldPoint[2];
+    //srv.response.gps_qrcode.latitude = worldPoint[0];
+    //srv.response.gps_qrcode.longitude = worldPoint[1];
+    //srv.response.gps_qrcode.altitude = worldPoint[2];
 }
 
 
 int main(int argc, char **argv){
     ros::init(argc,argv,"transformer");
     ros::NodeHandle nh;
-    ros::ServiceServer service = nh.advertiseService("qrc_coor_transfo_service", callback);
+    //ros::ServiceServer service = nh.advertiseService("qrc_coor_transfo_service", callback);
     ROS_INFO("Ready to transform coordinates.");
     ros::spin();//If only use once ros：：spinOnce
     return 0;
 }
+
+*/

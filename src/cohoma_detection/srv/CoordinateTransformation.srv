@@ -4,3 +4,5 @@ geometry_msgs/Point   coor_pixel             # x et y coordonnées en pixel, on 
 sensor_msgs/NavSatFix gps_drone              # latitude longitude altitude ainsi que status header position_covariance du drone
 ---
 geographic_msgs/GeoPoint gps_qrcode          # latitude longitude altitude
+
+# to modify completely!!!!

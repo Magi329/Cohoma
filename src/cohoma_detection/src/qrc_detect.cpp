@@ -275,11 +275,15 @@ class QRCDetect
             //pour avoir la position du QRCode il faut la position GPS du drone, ok
             // l orientation de la caméra,
             //les coordonnées du point dans la caméra. ok
+            geographic_msgs::GeoPoint position;
+            position.latitude = 0;
+            position.longitude = 0;
+            position.altitude = 0.0;
 
             //construction du message QRCode
             cohoma_detection::QRCode qrc_tab_msg;
             qrc_tab_msg.raw_value =obj.data;
-            qrc_tab_msg.position=qrc_position;
+            qrc_tab_msg.position=position;
             qrc_tab_msg.nature = qrcode_parse[0];
             qrc_tab_msg.id=stoui(qrcode_parse[1]);
             qrc_tab_msg.ngz_radius = stoui(qrcode_parse[2]);
@@ -315,7 +319,7 @@ class QRCDetect
             //construction message SP avec les informations du QRCode
             cohoma_detection::StrategicPoint qrc_SP;
             qrc_SP.id = qrcode_parse[1];
-            qrc_SP.position=qrc_position;
+            qrc_SP.position=position;
             qrc_SP.type = type;
             qrc_SP.status = status;
             qrc_SP.radius = stof(qrcode_parse[2]);

@@ -154,11 +154,11 @@ include_directories("/usr/local/include/opencv4/")
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/simple_node.cpp)
   # nom de l'executable, normallement nom du node, indiquant le fichier source du node
-add_executable(transformer src/transformer.cpp)
 add_executable(trap_detector src/trap_detector.cpp)
 add_executable(img_pub src/img_pub.cpp)
 add_executable(qrc_manager src/qrc_manager.cpp)
 add_executable(qrc_detect src/qrc_detect.cpp)
+#add_executable(transformer src/transformer.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -174,7 +174,7 @@ add_dependencies(trap_detector ${cohoma_detection_EXPORTED_TARGETS} ${catkin_EXP
 add_dependencies(img_pub ${cohoma_detection_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(qrc_manager ${cohoma_detection_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(qrc_detect ${cohoma_detection_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-add_dependencies(transformer ${cohoma_detection_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_generate_messages_cpp ${PROJECT_NAME}_gencpp)
+#add_dependencies(transformer ${cohoma_detection_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_generate_messages_cpp ${PROJECT_NAME}_gencpp)
 
 
 ## Specify libraries to link a library or executable target against
