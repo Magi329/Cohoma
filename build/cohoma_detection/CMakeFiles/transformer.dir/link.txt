@@ -1,1 +1,0 @@
-/usr/bin/c++    -rdynamic CMakeFiles/transformer.dir/src/transformer.cpp.o  -o /home/chen/cohoma_ws/devel/lib/cohoma_detection/transformer 
