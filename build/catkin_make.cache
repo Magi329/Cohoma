@@ -1,0 +1,2 @@
+cohoma_detection
+-DCATKIN_DEVEL_PREFIX=/home/chen/cohoma_ws/devel -DCMAKE_INSTALL_PREFIX=/home/chen/cohoma_ws/install -G Unix Makefiles

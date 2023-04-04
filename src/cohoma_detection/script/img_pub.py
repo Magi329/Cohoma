@@ -11,7 +11,7 @@ from cv_bridge import CvBridge
 import random
 
 # define a video capture object
-### vid = cv.VideoCapture(0)
+vid = cv.VideoCapture(0)
     
 def imagePub():
     rospy.init_node('image_pub', anonymous=True)
@@ -41,13 +41,13 @@ def imagePub():
         else :
             path_qr =    '/home/chen/cohoma_ws/src/cohoma_detection/script/media/none.jpg'
         
-        img_color = cv.imread(path_qr,cv.IMREAD_COLOR)
+        #img_color = cv.imread(path_qr,cv.IMREAD_COLOR)
         
         
 
-        ###ret, img_color = vid.read()
+        ret, img_color = vid.read()
 
-        #img_color = cv.flip(img_color, 1)
+        img_color = cv.flip(img_color, 1)
 
 
         gps.latitude = latitude +random.uniform(0,5e-10) 

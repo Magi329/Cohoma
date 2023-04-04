@@ -103,7 +103,7 @@ class QRCDetect:
 
             
             # Find the position of a QR code on a frame (not tested)
-            """
+            
             # Find the corners of the QR code polygon
             points_camera = np.array([obj.polygon])
             #rospy.loginfo(obj.orientation)
@@ -123,7 +123,7 @@ class QRCDetect:
 
 
             #rospy.loginfo(xb)
-            #rospy.loginfo(yb)                                                              OK
+            #rospy.loginfo(yb)                                                              
             
             qrc_raw = (obj.data).decode('utf-8')
 
@@ -145,7 +145,7 @@ class QRCDetect:
             # Magenta
             cv_image = cv2.circle(cv_image, points_camera[0][2], 10, (250,0,250), -1)
             # Green
-            cv_image = cv2.circle(cv_image, points_camera[0][3], 10, (0,250,0), -1)                             OK
+            cv_image = cv2.circle(cv_image, points_camera[0][3], 10, (0,250,0), -1)                             
 
             # Uses PnP (Perspective-n-Point) from Open CV to compute distance between the camera and the QR Code
 
@@ -242,7 +242,7 @@ class QRCDetect:
             #rospy.loginfo(vector_translation)
             brcst.sendTransform((v0[0],v0[1],v0[2]),(0,0,0,1),rospy.Time.now(),"qrc","base")
             
-            """
+            
 
 
             try:

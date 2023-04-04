@@ -1,0 +1,8 @@
+prefix=/home/chen/cohoma_ws/devel
+
+Name: cohoma_detection
+Description: Description of cohoma_detection
+Version: 0.0.0
+Cflags: -I/home/chen/cohoma_ws/devel/include -I/home/chen/cohoma_ws/src/cohoma_detection/include
+Libs: -L${prefix}/lib -lcohoma_detection
+Requires: roscpp rospy std_msgs sensor_msgs geographic_msgs
