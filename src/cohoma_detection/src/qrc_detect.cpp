@@ -75,7 +75,7 @@ class QRCDetect
         nh.param<std::string>("zoom_topic",zoom_sub_topic,"control/cmd_zoom");
         nh.param<std::string>("gimbal_topic",gimbal_sub_topic,"control/cmd_cam");
         nh.param<std::string>("qrc_topic",qrc_data_pub_topic,"mission/qrc_data");
-        nh.param<std::string>("qrc_coor_transfo_service",coor_transfo_service,"transformation/qrc_coor");
+        //nh.param<std::string>("qrc_coor_transfo_service",coor_transfo_service,"transformation/qrc_coor");
 
         //Subscribers
         img_sub = nh.subscribe(img_sub_topic, 1000, &QRCDetect::img_cb,this);
@@ -89,7 +89,7 @@ class QRCDetect
         //on publie SP sur topic mission/qrc_data
         qrc_data_pub=nh.advertise<cohoma_detection::StrategicPoint>(qrc_data_pub_topic,1);
         // on demande des coordonnées du qrcode sur service transformation/qrc_coor
-        ros::ServiceClient client = nh.serviceClient<cohoma_detection::CoordinateTransformation>(coor_transfo_service);
+        //ros::ServiceClient client = nh.serviceClient<cohoma_detection::CoordinateTransformation>(coor_transfo_service);
         //CV Bridge Initi
         cv_image=NULL;
 
@@ -196,10 +196,10 @@ class QRCDetect
                 Point3f(dim_f, dim_f, 0.0)   // Top right corner
             };
             // Coordinates in the real world. Origin is at "bot left corner (in front?)"
-
+/*
             points_2D.insert(points_2D.begin(), Point2f(xb, yb));
             points_3D.insert(points_3D.begin(), Point3f(dim_f/2, dim_f/2, 0.0));
-
+*/
             // définir la matrice de la caméra
             double fx, fy, cx, cy;
             if (drone) {
@@ -226,7 +226,7 @@ class QRCDetect
 
             ROS_INFO_STREAM("Rotation: " << rotation);
             ROS_INFO_STREAM("Translation: " << translation);
-
+/*
             //envoyer un request
             cohoma_detection::CoordinateTransformation srv;
             geometry_msgs::Vector3 vector_rotation;
@@ -256,7 +256,7 @@ class QRCDetect
                 ROS_ERROR("Failed to call service qrc_coor_transfo_service");
   
             }
-
+*/
 
 
             //make an action for the code bar  
