@@ -1,6 +1,6 @@
 # cohoma_detectiton
 
-General information。
+General information:
 
 This is the computer vison ROS package used for the CoHoMa competion.
 
