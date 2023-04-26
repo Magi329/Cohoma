@@ -43,6 +43,10 @@ geographic_msgs/GeoPoint.h
 -
 geographic_msgs/GeoPoseStamped.h
 -
+numeric
+-
+vector
+-
 string
 -
 cohoma_detection/StrategicPoint.h

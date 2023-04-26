@@ -7,6 +7,8 @@
 #include <sensor_msgs/NavSatFix.h>		// GPS message
 #include <geographic_msgs/GeoPoint.h>		// geolocalization for GUI
 #include <geographic_msgs/GeoPoseStamped.h>	// geolocalization from Anafi
+#include <numeric>   
+#include <vector> 
 #include <string>
 #include "cohoma_detection/StrategicPoint.h"       
 
@@ -321,17 +323,33 @@ public:
     findContours(mask, contours,  CV_RETR_EXTERNAL, CHAIN_APPROX_SIMPLE );
 
     std::vector<std::vector<Point> > contours_poly( contours.size() );
+    std::vector<Point> contours_centers;
     std::vector<Rect> boundRect( contours.size() );
        
     // For every found contour
     for( size_t i = 0; i < contours.size(); i++ )
     {
-        // we apply approximation to polygons with accuracy +-3 and stating that the curve must be closed
-        approxPolyDP( contours[i], contours_poly[i], 5, true );
-        // find a bounding rect for every polygon and save it to boundRect
-        boundRect[i] = boundingRect( contours_poly[i] );
+      // we apply approximation to polygons with accuracy +-3 and stating that the curve must be closed
+      approxPolyDP( contours[i], contours_poly[i], 5, true );
+      // find a bounding rect for every polygon and save it to boundRect
+      boundRect[i] = boundingRect( contours_poly[i] );
+      // Find the mean of all the points
+      Point2d meanPoint;
+      int totalPoints = 0;
+      for (auto& p : contours_poly[i])
+    {
+      Point2d point(p.x, p.y);
+      meanPoint += point;
+      totalPoints++;
     }
-    
+      meanPoint /= totalPoints;
+      std::cout << "Mean Point: " << meanPoint << std::endl;
+      contours_centers.push_back(meanPoint);
+    }
+
+
+
+
     /* Trap notification
      * We want to avoid two spam scenario : noise, and previously seen trap
      * Noise:  It would be better to track each contour according to object pose and drone velocity
@@ -346,7 +364,7 @@ public:
       // If a trap has been seen in (x) previous frames, it was no noise. Then continue process
       if (seen_ >= 1)
       {
-        // ROS_INFO("Trap detected at\n\tlat: %f\n\tlong: %f\n\talt: %f", current_pos_.latitude, current_pos_.longitude, current_pos_.altitude);
+        ROS_INFO("Trap detected at\n\tlat: %f\n\tlong: %f\n\talt: %f", current_pos_.latitude, current_pos_.longitude, current_pos_.altitude);
         
         /* If the position is similar to the last trap seen, then it's likely the same. Then don't spam the user with notification
          * Note: altitude doesn't count here.

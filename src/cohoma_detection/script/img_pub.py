@@ -41,7 +41,7 @@ def imagePub():
         else :
             path_qr =    '/home/chen/cohoma_ws/src/cohoma_detection/script/media/none.jpg'
         
-        #img_color = cv.imread(path_qr,cv.IMREAD_COLOR)
+        ###img_color = cv.imread(path_qr,cv.IMREAD_COLOR)
         
         
 

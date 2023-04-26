@@ -74,7 +74,7 @@ int main(int argc, char** argv)
     //--- INITIALIZE VIDEOCAPTURE
     VideoCapture cap;
     // open the default camera using default API
-    // cap.open(0);
+    //cap.open(0);
     // OR advance usage: select any API backend
     int deviceID = 0;             // 0 = open default camera
     int apiID = cv::CAP_GSTREAMER;      // 0 = autodetect default API

@@ -54,7 +54,7 @@ CMAKE_BINARY_DIR = /home/chen/cohoma_ws/build
 include cohoma_detection/CMakeFiles/_cohoma_detection_generate_messages_check_deps_MissionContext.dir/progress.make
 
 cohoma_detection/CMakeFiles/_cohoma_detection_generate_messages_check_deps_MissionContext:
-	cd /home/chen/cohoma_ws/build/cohoma_detection && ../catkin_generated/env_cached.sh /usr/bin/python3 /opt/ros/noetic/share/genmsg/cmake/../../../lib/genmsg/genmsg_check_deps.py cohoma_detection /home/chen/cohoma_ws/src/cohoma_detection/msg/MissionContext.msg cohoma_detection/StrategicPoint:geographic_msgs/GeoPoint:std_msgs/Header
+	cd /home/chen/cohoma_ws/build/cohoma_detection && ../catkin_generated/env_cached.sh /usr/bin/python3 /opt/ros/noetic/share/genmsg/cmake/../../../lib/genmsg/genmsg_check_deps.py cohoma_detection /home/chen/cohoma_ws/src/cohoma_detection/msg/MissionContext.msg geographic_msgs/GeoPoint:std_msgs/Header:cohoma_detection/StrategicPoint
 
 _cohoma_detection_generate_messages_check_deps_MissionContext: cohoma_detection/CMakeFiles/_cohoma_detection_generate_messages_check_deps_MissionContext
 _cohoma_detection_generate_messages_check_deps_MissionContext: cohoma_detection/CMakeFiles/_cohoma_detection_generate_messages_check_deps_MissionContext.dir/build.make

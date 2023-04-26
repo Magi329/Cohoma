@@ -68,7 +68,7 @@ class QRCDetect
         sat=false;
 
         //récupération des paramètres
-        nh.param<std::string>("qrc_dim",dim,"28.9");
+        nh.param<std::string>("qrc_dim",dim,"8.25");
         nh.param<std::string>("img_topic",img_sub_topic,"image");
         nh.param<std::string>("gps_topic",gps_sub_topic,"gps");
         nh.param<std::string>("sat_topic",sat_sub_topic,"sat");
@@ -136,30 +136,30 @@ class QRCDetect
         //on peut jouer sur le mono8 en le remplacant par du BGR2GRAY ou autre chose RGB etc
         //conversion img ROS en img OpenCV
         cv_image = cv_bridge::toCvShare(msg,"mono8");
-        ROS_INFO("Conversion to OpenCVdone");
+        
         // Create zbar scanner
     
         // Configure scanner
         scanner.set_config(zbar::ZBAR_NONE, zbar::ZBAR_CFG_ENABLE, 1);
         
         // Convert image to grayscale
-        // Mat imGray;
-        // cvtColor(cv_image, imGray,CV_BGR2GRAY);
+        //Mat imGray;
+        //cvtColor(cv_image, imGray,CV_BGR2GRAY);
 
         // Wrap image data in a zbar image
         zbar::Image image(cv_image->image.cols, cv_image->image.rows, "Y800", cv_image->image.data, cv_image->image.cols * cv_image->image.rows);
-        //ROS_INFO("Wrap image data in a zbar image done");
+        ROS_INFO("Wrap image data in a zbar image done");
         // Scan the image for barcodes and QRCodes
         int n = scanner.scan(image);
-        //ROS_INFO("Scan done");
+        ROS_INFO("Scan done %d", n);
         // add code bar to the vector decodedObjects
-
         for(zbar::Image::SymbolIterator symbol = image.symbol_begin(); symbol != image.symbol_end(); ++symbol)
         {
             decodedObject obj;
             obj.type = symbol->get_type_name();
             obj.data = symbol->get_data();
             // Print type and data
+            
             cout << "Type : " << obj.type << endl; //contient le type de code barre : QRCode etc
             cout << "Data : " << obj.data << endl; //contient les infos qui sont séparés par des retours à la ligne
 
@@ -207,19 +207,20 @@ class QRCDetect
                 fy = 964.847390;
                 cx = 634.036198;
                 cy = 377.592061;
-            } else {
-                fx = 502.55419128;
-                fy = 502.04227557;
-                cx = 351.39874168;
-                cy = 246.11607977;
+            } else { //webcam
+                fx = 1480.41427;
+                fy = 1474.89066;
+                cx = 1147.40483;
+                cy = 748.896047;
             }
+            
             Mat matrix_camera = (Mat_<double>(3, 3) <<
                          fx, 0, cx,
                          0, fy, cy,
                          0, 0, 1);
 
-            Mat dist_coeffs = Mat::zeros(4, 1, DataType<double>::type);   // chatgpt : Mat distortion_coeffs = (Mat_<double>(1, 5) << k1, k2, p1, p2, k3);
-
+            Mat dist_coeffs = (Mat_<double>(1, 5) << 0.22130993, -0.41389255,  0.00272609,  0.0008422,  0.58117634);
+            
             // Use Perspective n Points from OpenCV to convert 2D point on the camera to 3D point in the real world
             Mat rotation, translation;
             bool success = solvePnP(points_3D, points_2D, matrix_camera, dist_coeffs, rotation, translation, false);
@@ -377,7 +378,7 @@ class QRCDetect
 
         ROS_INFO("%s","QRC Detect : Start");
 
-        while(ros::ok())
+        while(ros::ok())    
         {
             ros::spinOnce();
             loop_rate.sleep();
@@ -416,6 +417,7 @@ class QRCDetect
     //Publisher
     ros::Publisher image_pub;
     ros::Publisher qrc_data_pub;
+    string coor_transfo_service;
     string qrc_data_pub_topic;
 
     //noeud ROS

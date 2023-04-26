@@ -54,9 +54,9 @@ while(True):
 vid.release()
 # Destroy all the windows
 cv.destroyAllWindows()
-
+print("1")
 ret, mtx, dist, rvecs, tvecs = cv.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
-
+print("2")
 print("Camera matrix : \n")
 print(mtx)
 print("dist : \n")

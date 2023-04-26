@@ -54,7 +54,7 @@ CMAKE_BINARY_DIR = /home/chen/cohoma_ws/build
 include cohoma_detection/CMakeFiles/_cohoma_detection_generate_messages_check_deps_CoordinateTransformation.dir/progress.make
 
 cohoma_detection/CMakeFiles/_cohoma_detection_generate_messages_check_deps_CoordinateTransformation:
-	cd /home/chen/cohoma_ws/build/cohoma_detection && ../catkin_generated/env_cached.sh /usr/bin/python3 /opt/ros/noetic/share/genmsg/cmake/../../../lib/genmsg/genmsg_check_deps.py cohoma_detection /home/chen/cohoma_ws/src/cohoma_detection/srv/CoordinateTransformation.srv geometry_msgs/Vector3:geographic_msgs/GeoPoint:sensor_msgs/NavSatFix:geometry_msgs/Point:std_msgs/Header:sensor_msgs/NavSatStatus
+	cd /home/chen/cohoma_ws/build/cohoma_detection && ../catkin_generated/env_cached.sh /usr/bin/python3 /opt/ros/noetic/share/genmsg/cmake/../../../lib/genmsg/genmsg_check_deps.py cohoma_detection /home/chen/cohoma_ws/src/cohoma_detection/srv/CoordinateTransformation.srv geometry_msgs/Vector3:geographic_msgs/GeoPoint:sensor_msgs/NavSatStatus:std_msgs/Header:geometry_msgs/Point:sensor_msgs/NavSatFix
 
 _cohoma_detection_generate_messages_check_deps_CoordinateTransformation: cohoma_detection/CMakeFiles/_cohoma_detection_generate_messages_check_deps_CoordinateTransformation
 _cohoma_detection_generate_messages_check_deps_CoordinateTransformation: cohoma_detection/CMakeFiles/_cohoma_detection_generate_messages_check_deps_CoordinateTransformation.dir/build.make

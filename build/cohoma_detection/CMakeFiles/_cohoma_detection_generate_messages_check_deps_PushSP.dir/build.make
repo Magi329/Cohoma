@@ -54,7 +54,7 @@ CMAKE_BINARY_DIR = /home/chen/cohoma_ws/build
 include cohoma_detection/CMakeFiles/_cohoma_detection_generate_messages_check_deps_PushSP.dir/progress.make
 
 cohoma_detection/CMakeFiles/_cohoma_detection_generate_messages_check_deps_PushSP:
-	cd /home/chen/cohoma_ws/build/cohoma_detection && ../catkin_generated/env_cached.sh /usr/bin/python3 /opt/ros/noetic/share/genmsg/cmake/../../../lib/genmsg/genmsg_check_deps.py cohoma_detection /home/chen/cohoma_ws/src/cohoma_detection/srv/PushSP.srv cohoma_detection/StrategicPoint:geographic_msgs/GeoPoint
+	cd /home/chen/cohoma_ws/build/cohoma_detection && ../catkin_generated/env_cached.sh /usr/bin/python3 /opt/ros/noetic/share/genmsg/cmake/../../../lib/genmsg/genmsg_check_deps.py cohoma_detection /home/chen/cohoma_ws/src/cohoma_detection/srv/PushSP.srv geographic_msgs/GeoPoint:cohoma_detection/StrategicPoint
 
 _cohoma_detection_generate_messages_check_deps_PushSP: cohoma_detection/CMakeFiles/_cohoma_detection_generate_messages_check_deps_PushSP
 _cohoma_detection_generate_messages_check_deps_PushSP: cohoma_detection/CMakeFiles/_cohoma_detection_generate_messages_check_deps_PushSP.dir/build.make
